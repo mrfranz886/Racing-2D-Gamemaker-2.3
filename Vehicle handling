@@ -1,0 +1,43 @@
+///Vehicle handling
+var turn_l = keyboard_check(vk_left);
+var turn_r = keyboard_check(vk_right);
+var gas = keyboard_check(vk_control);
+var breaking = keyboard_check(vk_alt);
+var steering = 2;
+var acceleration = 0.2;
+var breaks = 1;
+var max_speed = 10;
+
+//Steering
+if phy_speed > 0.1
+	{
+    if turn_l { phy_rotation -= steering; }
+    if turn_r { phy_rotation += steering; }
+	}
+	
+
+//Moving
+if phy_speed < max_speed {
+	if gas
+	{
+   	xpos = lengthdir_x(acceleration * breaks, -phy_rotation);
+	ypos = lengthdir_y(acceleration * breaks, -phy_rotation);
+	physics_apply_impulse(x, y, xpos, ypos);
+	//physics_apply_force(x, y, -lvx * phy_mass, -lvy * phy_mass);
+	}
+}
+
+if breaking
+	{
+   	physics_apply_impulse(x, y, -xpos/2, -ypos/2);
+	//BUG: this is not good for breaking, cause if standing still and pressing breaking the game crashes
+	}
+
+//This is for killing the sideway drift (not working)
+nx = lengthdir_x(0.3, -phy_rotation + 90);
+ny = lengthdir_y(0.3, -phy_rotation + 90);
+dot = dot_product(nx, ny, phy_linear_velocity_x * 0.02, phy_linear_velocity_y * 0.02);
+lvx = dot * nx;
+lvy = dot * ny;
+
+	//physics_apply_force(x, y, -lvx * phy_mass, -lvy * phy_mass);
